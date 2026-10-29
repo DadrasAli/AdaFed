@@ -1,0 +1,199 @@
+\documentclass[border=3pt]{standalone}
+\input{../pdf-metadata.tex}
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{adaBlue}{HTML}{0072B2}
+\definecolor{adaOrange}{HTML}{D55E00}
+\definecolor{adaGreen}{HTML}{009E73}
+\definecolor{adaPurple}{HTML}{332288}
+\definecolor{adaSky}{HTML}{88CCEE}
+\definecolor{adaTeal}{HTML}{44AA99}
+\definecolor{adaVermilion}{HTML}{EE7733}
+\definecolor{adaWine}{HTML}{AA3377}
+
+\newcommand{\LegKey}[1]{\tikz[baseline=-0.55ex]{\draw[#1] (0,0)--(0.52,0);}}
+\newcommand{\LegKeyLast}{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[black!75,densely dashed,line width=0.62pt] (0,0)--(0.52,0);
+    \fill[black!75] (0.26,0) circle (0.7pt);}}
+\newcommand{\LegSep}{\hspace{1.2em}}
+\newcommand{\AdaFedLegend}{%
+  {\small
+   \LegKey{adaBlue,line width=1.15pt}~$K=1$\LegSep
+   \LegKey{adaOrange,line width=1.15pt}~$K=10$\LegSep
+   \LegKey{adaGreen,line width=1.15pt}~$K=100$\LegSep
+   \LegKey{black!75,line width=1.05pt}~random-output mean\LegSep
+   \LegKeyLast~last iterate}%
+}
+
+\begin{document}
+\begin{minipage}{13.97cm}
+\centering
+% Original label: fig:rates-synthetic-b8-pgf
+% Original caption:
+% Appendix counterpart of Figure~\ref{fig:rates-synthetic-b1-pgf} with stochastic minibatch
+% size $b=8$. Every stochastic curve is a pointwise arithmetic mean over the same twenty seeds.
+
+\AdaFedLegend
+\vspace{0.35em}
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group size=3 by 2,
+    horizontal sep=1.05cm,
+    vertical sep=0.85cm
+  },
+  scale only axis=true,
+  width={(\textwidth-3.8cm)/3},
+  height={(\textwidth-3.8cm)/3/1.288},
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xtick={1,10,100,1000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick num=0,
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+  xmax=2000,
+]
+
+% --- Top row: exact gradients ---
+\nextgroupplot[title={Smooth nonconvex\\[-0.35ex]{\scriptsize $\lVert\nabla F(x)\rVert^2$}}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-nonconvex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=10$};
+
+\nextgroupplot[title={Smooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-smooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-smooth-convex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=10$};
+
+\nextgroupplot[title={Nonsmooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-exact-nonsmooth-convex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=1$};
+
+% --- Bottom row: stochastic gradients ---
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-nonconvex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=10$};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-smooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-smooth-convex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=1$};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-b8-nonsmooth-convex-K100.dat};
+  \node[anchor=south west,font=\tiny,text=black!55]
+    at (rel axis cs:0.03,0.035) {fixed $\eta=1$};
+\end{groupplot}
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r1.west)+(-1.00cm,0)$) {Exact gradients};
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r2.west)+(-1.00cm,0)$) {Stochastic, $b=8$};
+\end{tikzpicture}
+
+\end{minipage}
+\end{document}

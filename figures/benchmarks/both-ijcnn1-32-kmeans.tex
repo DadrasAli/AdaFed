@@ -1,0 +1,208 @@
+\documentclass[border=3pt]{standalone}
+\input{../pdf-metadata.tex}
+% Adaptation at both levels (AdaFed, FAFED, FedAda2) on IJCNN1 under the balanced k-means split of the per-example gradients: ijcnn1-32-kmeans
+% (32 clients of exactly 1,000 rows, the partition of data/ijcnn1-32-kmeans-partition.json; the
+% objective is the mean over all rows, as for every split). Same layout, styles and limits as both-ijcnn1-32.tex.
+% Shaded bands behind every curve that is a mean over seeds, drawn as in rates-ijcnn-b1.tex.
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{methodBlack}{HTML}{222222}
+\definecolor{methodOrange}{HTML}{D55E00}
+\definecolor{methodGreen}{HTML}{009E73}
+\definecolor{methodBlue}{HTML}{0072B2}
+\definecolor{methodWine}{HTML}{CC79A7}
+
+\newcommand{\LegKey}[1]{\tikz[baseline=-0.55ex]{\draw[#1] (0,0)--(0.52,0);}}
+\newcommand{\LegKeyLast}{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[black!75,densely dashed,line width=0.62pt] (0,0)--(0.52,0);
+    \fill[black!75] (0.26,0) circle (0.7pt);}}
+\newcommand{\LegSep}{\hspace{0.8em}}
+
+% Asymmetric one-sided standard-deviation bands around stochastic means.
+% The table bounds are computed directionally, so the lower edge remains
+% nonnegative without an arbitrary clipping threshold.
+\newcommand{\MeanBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=random_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=random_high] {#3};
+  \addplot[fill=#2,fill opacity=0.22,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+\newcommand{\LastBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=last_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=last_high] {#3};
+  \addplot[fill=#2,fill opacity=0.17,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+
+\begin{document}
+\begin{minipage}{13.97cm}
+\centering
+% Source: both-ijcnn1-32; K=10, T=10000, full participation.
+% Stochastic curves are pointwise arithmetic means of seeds 2027 through 2046.
+{\small \LegKey{methodBlack,line width=1.10pt}~AdaFed\LegSep
+   \LegKey{methodOrange,line width=1.10pt}~FAFED\LegSep
+   \LegKey{methodBlue,line width=1.10pt}~FedAda$^2$}\par
+\vspace{0.16em}
+{\scriptsize\LegKey{black!75,line width=1.05pt}~random-output mean\LegSep
+\LegKeyLast~last iterate}\par
+\vspace{0.35em}
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=3 by 2,horizontal sep=1.05cm,vertical sep=0.85cm},
+  scale only axis=true,
+  width={(\textwidth-4.0cm)/3},
+  height={(\textwidth-4.0cm)/3/1.288},
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xmax=10000,
+  xtick={1,10,100,1000,10000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick num=0,
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+]
+
+% Top row: exact local gradients; bottom row: stochastic local gradients.
+\nextgroupplot[title={Smooth nonconvex\\[-0.35ex]{\scriptsize $\lVert\nabla F(x)\rVert^2$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-nonconvex.dat};
+\nextgroupplot[title={Smooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-full-smooth-convex.dat};
+\nextgroupplot[title={Nonsmooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-full-nonsmooth-convex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{sncadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-adafed-band.dat}
+  \MeanBand{sncfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-fafed-band.dat}
+  \MeanBand{sncfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-fedada2-band.dat}
+  \LastBand{sncLastadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-adafed-band.dat}
+  \LastBand{sncLastfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-fafed-band.dat}
+  \LastBand{sncLastfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex-fedada2-band.dat}
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-nonconvex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{scadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-adafed-band.dat}
+  \MeanBand{scfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-fafed-band.dat}
+  \MeanBand{scfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-fedada2-band.dat}
+  \LastBand{scLastadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-adafed-band.dat}
+  \LastBand{scLastfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-fafed-band.dat}
+  \LastBand{scLastfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex-fedada2-band.dat}
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-smooth-convex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{nscadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-adafed-band.dat}
+  \MeanBand{nscfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-fafed-band.dat}
+  \MeanBand{nscfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-fedada2-band.dat}
+  \LastBand{nscLastadafed}{methodBlack}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-adafed-band.dat}
+  \LastBand{nscLastfafed}{methodOrange}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-fafed-band.dat}
+  \LastBand{nscLastfedada}{methodBlue}{experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex-fedada2-band.dat}
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fafed_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fafed_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedada2_random] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodBlue,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedada2_last] {experiments-data/both-ijcnn1-32-kmeans-stochastic-nonsmooth-convex.dat};
+
+\end{groupplot}
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r1.west)+(-1.00cm,0)$) {Exact gradients};
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r2.west)+(-1.00cm,0)$) {Stochastic, $b=32$};
+\end{tikzpicture}
+\end{minipage}
+\end{document}

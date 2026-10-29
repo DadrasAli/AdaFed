@@ -1,0 +1,146 @@
+{
+ "ijcnn1-32-dirichlet0.01/l1/0.01": {
+  "f_star": 0.4278836450209717,
+  "kkt_residual": 3.469446951953614e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32-dirichlet0.01/l2sq/0.01": {
+  "f_star": 0.4154526395889211,
+  "kkt_residual": 8.250136684928577e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "ijcnn1-32-dirichlet0.1/l1/0.01": {
+  "f_star": 0.4278836450209717,
+  "kkt_residual": 5.204170427930421e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32-dirichlet0.1/l2sq/0.01": {
+  "f_star": 0.41545263958892104,
+  "kkt_residual": 8.249338712129628e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "ijcnn1-32-dirichlet0.5/l1/0.01": {
+  "f_star": 0.4278836450209717,
+  "kkt_residual": 3.469446951953614e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32-dirichlet0.5/l2sq/0.01": {
+  "f_star": 0.41545263958892104,
+  "kkt_residual": 8.251940797343593e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "ijcnn1-32-dirichlet1/l1/0.01": {
+  "f_star": 0.4278836450209717,
+  "kkt_residual": 1.734723475976807e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32-dirichlet1/l2sq/0.01": {
+  "f_star": 0.41545263958892115,
+  "kkt_residual": 8.251767324995996e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "ijcnn1-32-kmeans/l1/0.01": {
+  "f_star": 0.4278836450209717,
+  "kkt_residual": 6.938893903907228e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32-kmeans/l2sq/0.01": {
+  "f_star": 0.4154526395889211,
+  "kkt_residual": 8.254993910661312e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "ijcnn1-32/l1/0.01": {
+  "f_star": 0.42788364502097165,
+  "kkt_residual": 0.0,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "ijcnn1-32/l2sq/0.01": {
+  "f_star": 0.4154526395889211,
+  "kkt_residual": 8.251697936056956e-13,
+  "nnz": 22,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa1-kmeans/l1/0.01": {
+  "f_star": 0.4551244564739533,
+  "kkt_residual": 8.673617379884035e-18,
+  "nnz": 9,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa1-kmeans/l2sq/0.01": {
+  "f_star": 0.4409334313437286,
+  "kkt_residual": 1.739060284666749e-16,
+  "nnz": 32,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa1/l1/0.01": {
+  "f_star": 0.45512445647395333,
+  "kkt_residual": 1.0408340855860843e-17,
+  "nnz": 9,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa1/l2sq/0.01": {
+  "f_star": 0.4409334313437286,
+  "kkt_residual": 2.0599841277224584e-17,
+  "nnz": 32,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa10-kmeans/l1/0.01": {
+  "f_star": 0.47382480072297695,
+  "kkt_residual": 8.673617379884035e-18,
+  "nnz": 4,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa10-kmeans/l2sq/0.01": {
+  "f_star": 0.45935734908765125,
+  "kkt_residual": 4.4885969940899884e-17,
+  "nnz": 32,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa10/l1/0.01": {
+  "f_star": 0.4738248007229769,
+  "kkt_residual": 0.0,
+  "nnz": 4,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa10/l2sq/0.01": {
+  "f_star": 0.4593573490876512,
+  "kkt_residual": 2.097931203759451e-17,
+  "nnz": 32,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa100-kmeans/l1/0.01": {
+  "f_star": 0.48743008220058726,
+  "kkt_residual": 1.734723475976807e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa100-kmeans/l2sq/0.01": {
+  "f_star": 0.47750977596974997,
+  "kkt_residual": 6.640738306473715e-17,
+  "nnz": 32,
+  "source": "damped Newton"
+ },
+ "synthetic-kappa100/l1/0.01": {
+  "f_star": 0.48743008220058726,
+  "kkt_residual": 1.734723475976807e-18,
+  "nnz": 2,
+  "source": "FISTA + adaptive restart, support Newton polish"
+ },
+ "synthetic-kappa100/l2sq/0.01": {
+  "f_star": 0.47750977596975,
+  "kkt_residual": 6.938893903907228e-17,
+  "nnz": 32,
+  "source": "damped Newton"
+ }
+}

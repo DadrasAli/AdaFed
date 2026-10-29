@@ -1,0 +1,250 @@
+\documentclass[border=3pt]{standalone}
+\input{../pdf-metadata.tex}
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{adaBlue}{HTML}{0072B2}
+\definecolor{adaOrange}{HTML}{D55E00}
+\definecolor{adaGreen}{HTML}{009E73}
+\definecolor{adaPurple}{HTML}{332288}
+\definecolor{adaSky}{HTML}{88CCEE}
+\definecolor{adaTeal}{HTML}{44AA99}
+\definecolor{adaVermilion}{HTML}{EE7733}
+\definecolor{adaWine}{HTML}{AA3377}
+
+\newcommand{\LegKey}[1]{\tikz[baseline=-0.55ex]{\draw[#1] (0,0)--(0.52,0);}}
+\newcommand{\LegKeyLast}{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[black!75,densely dashed,line width=0.62pt] (0,0)--(0.52,0);
+    \fill[black!75] (0.26,0) circle (0.7pt);}}
+\newcommand{\LegSep}{\hspace{0.8em}}
+\newcommand{\AdaFedFiveLegend}{%
+  {\small
+   \LegKey{adaPurple,line width=1.10pt}~$\eta=10^{-1}$\LegSep
+   \LegKey{adaSky,line width=1.10pt}~$\eta=1$\LegSep
+   \LegKey{adaTeal,line width=1.10pt}~$\eta=10$\LegSep
+   \LegKey{adaVermilion,line width=1.10pt}~$\eta=10^2$\LegSep
+   \LegKey{adaWine,line width=1.10pt}~$\eta=10^3$\LegSep
+   \LegKey{black!75,line width=1.05pt}~random mean\LegSep
+   \LegKeyLast~last iterate}%
+}
+
+\begin{document}
+\begin{minipage}{13.97cm}
+\centering
+% Original label: fig:eta-ijcnn-pgf
+% Original caption:
+% Sensitivity to $\eta$ on IJCNN1, fixing $\gamma=1$ and $K=10$.
+
+\AdaFedFiveLegend
+\vspace{0.35em}
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group size=3 by 2,
+    horizontal sep=1.05cm,
+    vertical sep=0.85cm
+  },
+  scale only axis=true,
+  width={(\textwidth-3.8cm)/3},
+  height={(\textwidth-3.8cm)/3/1.288},
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xtick={1,10,100,1000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick num=0,
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+  xmax=1000,
+]
+
+% --- Top row: exact gradients ---
+\nextgroupplot[title={Smooth nonconvex\\[-0.35ex]{\scriptsize $\lVert\nabla F(x)\rVert^2$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-nonconvex-1000.dat};
+
+\nextgroupplot[title={Smooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-convex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-convex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-convex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-convex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-convex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-convex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-convex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-convex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-smooth-convex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-smooth-convex-1000.dat};
+
+\nextgroupplot[title={Nonsmooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-full-nonsmooth-convex-1000.dat};
+
+
+% --- Bottom row: stochastic gradients ---
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-nonconvex-1000.dat};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-smooth-convex-1000.dat};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-0.1.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-0.1.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-10.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-10.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-100.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-100.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-1000.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-eta-stochastic-nonsmooth-convex-1000.dat};
+
+\end{groupplot}
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r1.west)+(-1.00cm,0)$) {Exact gradients};
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r2.west)+(-1.00cm,0)$) {Stochastic, $b=1$};
+\end{tikzpicture}
+
+\end{minipage}
+\end{document}

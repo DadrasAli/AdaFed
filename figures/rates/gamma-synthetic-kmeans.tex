@@ -1,0 +1,312 @@
+\documentclass[border=3pt]{standalone}
+\input{../pdf-metadata.tex}
+% AdaFed sensitivity to gamma on synthetic data (kappa = 10) under the balanced k-means split of the per-example gradients: synthetic-kappa10-kmeans
+% (32 clients of exactly 64 rows, the partition of data/synthetic-kappa10-kmeans-partition.json; the
+% objective is the mean over all rows, as for every split). Same layout, styles and limits as gamma-synthetic.tex.
+% Shaded bands behind every curve that is a mean over seeds, drawn as in rates-ijcnn-b1.tex.
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{adaBlue}{HTML}{0072B2}
+\definecolor{adaOrange}{HTML}{D55E00}
+\definecolor{adaGreen}{HTML}{009E73}
+\definecolor{adaPurple}{HTML}{332288}
+\definecolor{adaSky}{HTML}{88CCEE}
+\definecolor{adaTeal}{HTML}{44AA99}
+\definecolor{adaVermilion}{HTML}{EE7733}
+\definecolor{adaWine}{HTML}{AA3377}
+
+\newcommand{\LegKey}[1]{\tikz[baseline=-0.55ex]{\draw[#1] (0,0)--(0.52,0);}}
+\newcommand{\LegKeyLast}{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[black!75,densely dashed,line width=0.62pt] (0,0)--(0.52,0);
+    \fill[black!75] (0.26,0) circle (0.7pt);}}
+\newcommand{\LegSep}{\hspace{0.8em}}
+\newcommand{\AdaFedFiveLegend}{%
+  {\small
+   \LegKey{adaPurple,line width=1.10pt}~$\gamma=10^{-2}$\LegSep
+   \LegKey{adaSky,line width=1.10pt}~$\gamma=10^{-1}$\LegSep
+   \LegKey{adaTeal,line width=1.10pt}~$\gamma=1$\LegSep
+   \LegKey{adaVermilion,line width=1.10pt}~$\gamma=10$\LegSep
+   \LegKey{adaWine,line width=1.10pt}~$\gamma=10^2$\LegSep
+   \LegKey{black!75,line width=1.05pt}~random mean\LegSep
+   \LegKeyLast~last iterate}%
+}
+
+% Asymmetric one-sided standard-deviation bands around stochastic means.
+% The table bounds are computed directionally, so the lower edge remains
+% nonnegative without an arbitrary clipping threshold.
+\newcommand{\MeanBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=random_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=random_high] {#3};
+  \addplot[fill=#2,fill opacity=0.22,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+\newcommand{\LastBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=last_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=last_high] {#3};
+  \addplot[fill=#2,fill opacity=0.17,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+
+% The legend on one line, scaled down to the figure's width if it is wider.
+\newsavebox{\LegendBox}
+\newcommand{\OneLineLegend}[1]{%
+  \sbox{\LegendBox}{#1}%
+  \typeout{one-line legend: natural width \the\wd\LegendBox, line width \the\linewidth}%
+  \ifdim\wd\LegendBox>\linewidth\resizebox{\linewidth}{!}{\usebox{\LegendBox}}\else\usebox{\LegendBox}\fi}
+
+\begin{document}
+\begin{minipage}{13.97cm}
+\centering
+% Original label: fig:gamma-synthetic-pgf
+% Original caption:
+% Sensitivity to the accumulator initialization $\gamma=S_1$ on synthetic data with
+% $\kappa=10$, fixing $K=10$ and the row-and-regime-specific tuned $\eta$.
+
+\OneLineLegend{\AdaFedFiveLegend}
+\vspace{0.35em}
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group size=3 by 2,
+    horizontal sep=1.05cm,
+    vertical sep=0.85cm
+  },
+  scale only axis=true,
+  width={(\textwidth-3.8cm)/3},
+  height={(\textwidth-3.8cm)/3/1.288},
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xtick={1,10,100,1000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick num=0,
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+  xmax=2000,
+]
+
+% --- Top row: exact gradients ---
+\nextgroupplot[title={Smooth nonconvex\\[-0.35ex]{\scriptsize $\lVert\nabla F(x)\rVert^2$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-nonconvex-100.dat};
+
+\nextgroupplot[title={Smooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-smooth-convex-100.dat};
+
+\nextgroupplot[title={Nonsmooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-full-nonsmooth-convex-100.dat};
+
+
+% --- Bottom row: stochastic gradients ---
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{sncA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.01-band.dat}
+  \MeanBand{sncB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.1-band.dat}
+  \MeanBand{sncC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-1-band.dat}
+  \MeanBand{sncD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-10-band.dat}
+  \MeanBand{sncE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-100-band.dat}
+  \LastBand{sncLastA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.01-band.dat}
+  \LastBand{sncLastB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.1-band.dat}
+  \LastBand{sncLastC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-1-band.dat}
+  \LastBand{sncLastD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-10-band.dat}
+  \LastBand{sncLastE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-100-band.dat}
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-nonconvex-100.dat};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{scA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.01-band.dat}
+  \MeanBand{scB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.1-band.dat}
+  \MeanBand{scC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-1-band.dat}
+  \MeanBand{scD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-10-band.dat}
+  \MeanBand{scE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-100-band.dat}
+  \LastBand{scLastA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.01-band.dat}
+  \LastBand{scLastB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.1-band.dat}
+  \LastBand{scLastC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-1-band.dat}
+  \LastBand{scLastD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-10-band.dat}
+  \LastBand{scLastE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-100-band.dat}
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-smooth-convex-100.dat};
+
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \MeanBand{nscA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.01-band.dat}
+  \MeanBand{nscB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.1-band.dat}
+  \MeanBand{nscC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-1-band.dat}
+  \MeanBand{nscD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-10-band.dat}
+  \MeanBand{nscE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-100-band.dat}
+  \LastBand{nscLastA}{adaPurple}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.01-band.dat}
+  \LastBand{nscLastB}{adaSky}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.1-band.dat}
+  \LastBand{nscLastC}{adaTeal}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-1-band.dat}
+  \LastBand{nscLastD}{adaVermilion}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-10-band.dat}
+  \LastBand{nscLastE}{adaWine}{experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-100-band.dat}
+  \addplot+[adaPurple,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.01.dat};
+  \addplot+[adaPurple,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.01.dat};
+  \addplot+[adaSky,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.1.dat};
+  \addplot+[adaSky,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-0.1.dat};
+  \addplot+[adaTeal,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-1.dat};
+  \addplot+[adaTeal,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-1.dat};
+  \addplot+[adaVermilion,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-10.dat};
+  \addplot+[adaVermilion,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-10.dat};
+  \addplot+[adaWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-100.dat};
+  \addplot+[adaWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=14,opacity=0.82]
+    table[x=round,y=last] {experiments-data/synthetic-kappa10-kmeans-gamma-stochastic-nonsmooth-convex-100.dat};
+
+\end{groupplot}
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r1.west)+(-1.00cm,0)$) {Exact gradients};
+
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r2.west)+(-1.00cm,0)$) {Stochastic, $b=1$};
+\end{tikzpicture}
+
+\end{minipage}
+\end{document}

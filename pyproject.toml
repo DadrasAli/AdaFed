@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adafed-paper"
+version = "1.0.0"
+description = "Reference implementation of AdaFed and the experiments of the paper"
+authors = [{name = "Anonymous Authors"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy==1.26.4",
+  "torch==2.5.1",
+  "matplotlib==3.10.9",
+]
+
+[project.scripts]
+adafed = "adafed.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["adafed*", "tools*"]
+exclude = ["tests*"]

@@ -1,0 +1,254 @@
+\documentclass[border=2pt]{standalone}
+\input{../pdf-metadata.tex}
+% AdaFed rates (K = 1, 10, 100) on IJCNN1 under Dirichlet label skew, alpha = 0.5: ijcnn1-32-dirichlet0.5
+% (32 clients, split seed 2021; the objective is the mean over all rows, as for every split, and the
+% server weights client i by n_i / n). Same layout, styles and limits as rates-ijcnn-b1.tex.
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{adaBlue}{HTML}{0072B2}
+\definecolor{adaOrange}{HTML}{D55E00}
+\definecolor{adaGreen}{HTML}{009E73}
+\definecolor{adaPurple}{HTML}{332288}
+\definecolor{adaSky}{HTML}{88CCEE}
+\definecolor{adaTeal}{HTML}{44AA99}
+\definecolor{adaVermilion}{HTML}{EE7733}
+\definecolor{adaWine}{HTML}{AA3377}
+
+% Asymmetric one-sided standard-deviation bands around stochastic means.
+% The table bounds are computed directionally, so the lower edge remains
+% nonnegative without an arbitrary clipping threshold.
+\newcommand{\MeanBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=random_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=random_high] {#3};
+  \addplot[fill=#2,fill opacity=0.22,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+\newcommand{\LastBand}[3]{%
+  \addplot[name path=#1low,draw=none,no marks,forget plot]
+    table[x=round,y=last_low] {#3};
+  \addplot[name path=#1high,draw=none,no marks,forget plot]
+    table[x=round,y=last_high] {#3};
+  \addplot[fill=#2,fill opacity=0.17,draw=none,forget plot]
+    fill between[of=#1low and #1high];
+}
+
+\begin{document}
+% Slightly wider canvas leaves room for the two vertical row labels.
+\begin{minipage}{16.10cm}
+\centering
+% Original label: fig:rates-ijcnn-b1-pgf
+% Original caption:
+% AdaFed on 32,000 IJCNN1 examples. The bottom row uses minibatch size $b=1$ and shows
+% pointwise means over twenty seeds; the exact-gradient top row is common to all batch sizes.
+
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={
+    group size=3 by 2,
+    horizontal sep=1.65cm,
+    vertical sep=1.15cm
+  },
+  scale only axis=true,
+  % Absolute panel dimensions preserve the manually tuned plot geometry
+  % independently of the tighter surrounding canvas.
+  width=3.533333cm,
+  height=3.6cm, %2.743271cm,
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xtick={1,10,100,1000,10000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick style={draw=none},
+  minor grid style={draw=none},
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\footnotesize},
+  legend columns=1,
+  legend style={
+    at={(0.035,0.035)},
+    anchor=south west,
+    font=\tiny,
+    draw=black!25,
+    fill=white,
+    fill opacity=0.88,
+    text opacity=1,
+    inner xsep=2pt,
+    inner ysep=1.5pt,
+    row sep=-1pt
+  },
+  ylabel style={
+    font=\footnotesize,
+    at={(axis description cs:-0.23,0.5)},
+    anchor=south
+  },
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+  xmax=10000,
+]
+
+% --- Top row: exact gradients ---
+\nextgroupplot[
+  title={\textbf{Smooth nonconvex}},
+  ylabel={$\lVert\nabla F(x)\rVert^2$},
+  ymin=1e-7,ymax=1e-1,
+  ytick={1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1},
+  yticklabels={$10^{-7}$,$10^{-6}$,$10^{-5}$,$10^{-4}$,$10^{-3}$,$10^{-2}$,$10^{-1}$}
+]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-nonconvex-K100.dat};
+\nextgroupplot[
+  title={\textbf{Smooth convex}},
+  ylabel={$F(x)-F^\star$},
+  ymin=1e-5,ymax=1,
+  ytick={1e-5,1e-4,1e-3,1e-2,1e-1,1},
+  yticklabels={$10^{-5}$,$10^{-4}$,$10^{-3}$,$10^{-2}$,$10^{-1}$,$10^0$}
+]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-smooth-convex-K100.dat};
+\nextgroupplot[
+  title={\textbf{Nonsmooth convex}},
+  ylabel={$F(x)-F^\star$},
+  ymin=1e-3,ymax=1,
+  ytick={1e-3,1e-2,1e-1,1},
+  yticklabels={$10^{-3}$,$10^{-2}$,$10^{-1}$,$10^0$}
+]
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-exact-nonsmooth-convex-K100.dat};
+% --- Bottom row: stochastic gradients ---
+\nextgroupplot[
+  xlabel={Communication rounds $t$},
+  ylabel={$\lVert\nabla F(x)\rVert^2$},
+  ymin=1e-7,ymax=1e-1,
+  ytick={1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1},
+  yticklabels={$10^{-7}$,$10^{-6}$,$10^{-5}$,$10^{-4}$,$10^{-3}$,$10^{-2}$,$10^{-1}$}
+]
+  \addlegendimage{adaBlue,solid,line width=1.05pt,no marks}
+  \addlegendentry{$K=1$}
+  \addlegendimage{adaOrange,solid,line width=1.05pt,no marks}
+  \addlegendentry{$K=10$}
+  \addlegendimage{adaGreen,solid,line width=1.05pt,no marks}
+  \addlegendentry{$K=100$}
+  \MeanBand{sncKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K1-band.dat}
+  \MeanBand{sncKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K10-band.dat}
+  \MeanBand{sncKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K100-band.dat}
+  \LastBand{sncLastKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K1-band.dat}
+  \LastBand{sncLastKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K10-band.dat}
+  \LastBand{sncLastKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K100-band.dat}
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-nonconvex-K100.dat};
+\nextgroupplot[
+  xlabel={Communication rounds $t$},
+  ylabel={$F(x)-F^\star$},
+  ymin=1e-5,ymax=1,
+  ytick={1e-5,1e-4,1e-3,1e-2,1e-1,1},
+  yticklabels={$10^{-5}$,$10^{-4}$,$10^{-3}$,$10^{-2}$,$10^{-1}$,$10^0$}
+]
+  \MeanBand{scKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K1-band.dat}
+  \MeanBand{scKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K10-band.dat}
+  \MeanBand{scKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K100-band.dat}
+  \LastBand{scLastKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K1-band.dat}
+  \LastBand{scLastKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K10-band.dat}
+  \LastBand{scLastKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K100-band.dat}
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-smooth-convex-K100.dat};
+\nextgroupplot[
+  xlabel={Communication rounds $t$},
+  ylabel={$F(x)-F^\star$},
+  ymin=1e-3,ymax=1,
+  ytick={1e-3,1e-2,1e-1,1},
+  yticklabels={$10^{-3}$,$10^{-2}$,$10^{-1}$,$10^0$}
+]
+  \MeanBand{nscKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K1-band.dat}
+  \MeanBand{nscKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K10-band.dat}
+  \MeanBand{nscKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K100-band.dat}
+  \LastBand{nscLastKone}{adaBlue}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K1-band.dat}
+  \LastBand{nscLastKten}{adaOrange}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K10-band.dat}
+  \LastBand{nscLastKhundred}{adaGreen}{experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K100-band.dat}
+  \addplot+[adaBlue,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K1.dat};
+  \addplot+[adaBlue,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K1.dat};
+  \addplot+[adaOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K10.dat};
+  \addplot+[adaOrange,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K10.dat};
+  \addplot+[adaGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=random] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K100.dat};
+  \addplot+[adaGreen,densely dashed,line width=0.62pt,no marks,opacity=0.82]
+    table[x=round,y=last] {experiments-data/ijcnn1-32-dirichlet0.5-b1-nonsmooth-convex-K100.dat};
+\end{groupplot}
+
+% Row definitions, kept outside the axes so they do not compete with the
+% convergence measures on the y-axes.
+\node[font=\footnotesize,rotate=90]
+  at ($(group c1r1.west)+(-1.65cm,0)$) {\textbf{Exact (sub)gradients}};
+\node[font=\footnotesize,rotate=90]
+  at ($(group c1r2.west)+(-1.65cm,0)$) {\textbf{Stochastic ($b=1$)}};
+
+\end{tikzpicture}
+
+\end{minipage}
+\end{document}

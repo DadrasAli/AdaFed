@@ -1,0 +1,34 @@
+.DS_Store
+.venv/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+
+# Regenerable datasets, tuning records, and trajectories.
+data/*.npz
+data/*.json
+!data/fstar.json
+!data/ijcnn1-32-kmeans-partition.json
+!data/ijcnn1-32-partition.json
+!data/synthetic-kappa*-kmeans-partition.json
+data/raw/
+rate-study/*
+!rate-study/.gitkeep
+
+# Regenerable PGFPlots tables and LaTeX build products; the k-means fixed-eta sources, written by the export from the runs.
+figures/*/experiments-data/*.dat
+figures/rates/rates-synthetic-b*-kmeans.tex
+figures/*/*.aux
+figures/*/*.fdb_latexmk
+figures/*/*.fls
+figures/*/*.log
+figures/*/*.pdf
+figures/*/*.synctex.gz
+.vscode/
+.idea/
+*.swp
+.ipynb_checkpoints/
+.pytest_cache/
+dist/
+*.out

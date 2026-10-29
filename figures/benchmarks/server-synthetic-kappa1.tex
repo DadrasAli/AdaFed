@@ -1,0 +1,197 @@
+\documentclass[border=3pt]{standalone}
+\input{../pdf-metadata.tex}
+
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.18}
+
+\definecolor{methodBlack}{HTML}{222222}
+\definecolor{methodOrange}{HTML}{D55E00}
+\definecolor{methodGreen}{HTML}{009E73}
+\definecolor{methodBlue}{HTML}{0072B2}
+\definecolor{methodWine}{HTML}{CC79A7}
+
+\newcommand{\LegKey}[1]{\tikz[baseline=-0.55ex]{\draw[#1] (0,0)--(0.52,0);}}
+\newcommand{\LegKeyLast}{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[black!75,densely dashed,line width=0.62pt] (0,0)--(0.52,0);
+    \fill[black!75] (0.26,0) circle (0.7pt);}}
+\newcommand{\LegSep}{\hspace{0.8em}}
+
+\begin{document}
+\begin{minipage}{13.97cm}
+\centering
+% Source: server-synthetic-kappa1; K=10, T=10000, full participation.
+% Stochastic curves are pointwise arithmetic means of seeds 2027 through 2046.
+{\small \LegKey{methodBlack,line width=1.10pt}~AdaFed\LegSep
+   \LegKey{methodOrange,line width=1.10pt}~FedAdagrad\LegSep
+   \LegKey{methodGreen,line width=1.10pt}~FedAdam\LegSep
+   \LegKey{methodWine,line width=1.10pt}~FedUR}\par
+\vspace{0.16em}
+{\scriptsize\LegKey{black!75,line width=1.05pt}~random-output mean\LegSep
+\LegKeyLast~last iterate}\par
+\vspace{0.35em}
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=3 by 2,horizontal sep=1.05cm,vertical sep=0.85cm},
+  scale only axis=true,
+  width={(\textwidth-4.0cm)/3},
+  height={(\textwidth-4.0cm)/3/1.288},
+  xmode=log,
+  ymode=log,
+  xmin=1,
+  xmax=10000,
+  xtick={1,10,100,1000,10000},
+  grid=major,
+  major grid style={draw=black!16,line width=0.25pt},
+  minor tick num=0,
+  axis line style={black!75,line width=0.45pt},
+  tick style={black!75,line width=0.40pt},
+  tick align=outside,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  title style={font=\small,align=center,yshift=-0.5ex},
+  xlabel style={yshift=0.25em},
+  unbounded coords=jump,
+  filter discard warning=false,
+]
+
+% Top row: exact local gradients; bottom row: stochastic local gradients.
+\nextgroupplot[title={Smooth nonconvex\\[-0.35ex]{\scriptsize $\lVert\nabla F(x)\rVert^2$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-full-smooth-nonconvex.dat};
+\nextgroupplot[title={Smooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-full-smooth-convex.dat};
+\nextgroupplot[title={Nonsmooth convex\\[-0.35ex]{\scriptsize $F(x)-F^\star$}}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-full-nonsmooth-convex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-nonconvex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-stochastic-smooth-convex.dat};
+\nextgroupplot[xlabel={Communication rounds $t$}]
+  \addplot+[methodBlack,solid,line width=1.05pt,no marks]
+    table[x=round,y=adafed_random] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodBlack,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=adafed_last] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodOrange,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadagrad_random] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodOrange,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadagrad_last] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodGreen,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedadam_random] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodGreen,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedadam_last] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodWine,solid,line width=1.05pt,no marks]
+    table[x=round,y=fedur_random] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+  \addplot+[methodWine,densely dashed,line width=0.62pt,mark=*,
+    mark size=0.70pt,mark repeat=70,opacity=0.82]
+    table[x=round,y=fedur_last] {experiments-data/server-synthetic-kappa1-stochastic-nonsmooth-convex.dat};
+
+\end{groupplot}
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r1.west)+(-1.00cm,0)$) {Exact gradients};
+\node[rotate=90,font=\scriptsize\bfseries,anchor=south]
+  at ($(group c1r2.west)+(-1.00cm,0)$) {Stochastic, $b=16$};
+\end{tikzpicture}
+\end{minipage}
+\end{document}
